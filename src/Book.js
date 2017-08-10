@@ -8,10 +8,10 @@ const Book = ({book: {id, title, authors, imageLinks, shelf}, onBookShelfChange}
         <div className="book-shelf-changer">
             <select defaultValue={shelf ? shelf : 'none'} onChange={(event) => onBookShelfChange({id}, event.target.value)}>
                 <option value="none" disabled>Move to...</option>
-                <option value="currentlyReading">Currently Reading</option>
-                <option value="wantToRead">Want to Read</option>
-                <option value="read">Read</option>
-                <option value="none">None</option>
+                <option value="currentlyReading">{shelf === 'currentlyReading' ? String.fromCharCode(10004) : ''} Currently Reading</option>
+                <option value="wantToRead">{shelf === 'wantToRead' ? String.fromCharCode(10004) : ''} Want to Read</option>
+                <option value="read">{shelf === 'read' ? String.fromCharCode(10004) : ''} Read</option>
+                <option value="none">{!shelf ? String.fromCharCode(10004) : ''} None</option>
             </select>
         </div>
         </div>
