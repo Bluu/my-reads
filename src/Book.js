@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Book = ({title, authors, thumbnail, shelf}) => (
+const Book = ({book: {id, title, authors, imageLinks, shelf}, onBookShelfChange}) => (
     <div className="book">
         <div className="book-top">
-        <div className="book-cover" style={{ backgroundImage: `url(${thumbnail})` }}></div>
+        <div className="book-cover" style={{ backgroundImage: `url(${imageLinks ? imageLinks.thumbnail : ''})` }}></div>
         <div className="book-shelf-changer">
-            <select>
+            <select defaultValue={shelf ? shelf : 'none'} onChange={(event) => onBookShelfChange({id}, event.target.value)}>
                 <option value="none" disabled>Move to...</option>
                 <option value="currentlyReading">Currently Reading</option>
                 <option value="wantToRead">Want to Read</option>
@@ -16,15 +16,13 @@ const Book = ({title, authors, thumbnail, shelf}) => (
         </div>
         </div>
         <div className="book-title">{title}</div>
-        <div className="book-authors">{authors.join(', ')}</div>
+        <div className="book-authors">{!authors ? null : authors.join(', ')}</div>
     </div>
 );
 
 Book.propTypes = {
-    title: PropTypes.string.isRequired,
-    authors: PropTypes.array.isRequired,
-    thumbnail: PropTypes.string.isRequired,
-    shelf: PropTypes.string.isRequired,
+    book: PropTypes.object.isRequired,
+    onBookShelfChange: PropTypes.func.isRequired,
 };
 
 export default Book;

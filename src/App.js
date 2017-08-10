@@ -15,11 +15,30 @@ class BooksApp extends React.Component {
     showSearchPage: true
   }
 
+  constructor() {
+    super();
+    this.loadBooks = this.loadBooks.bind(this);
+    this.handleOnBookShelfChange = this.handleOnBookShelfChange.bind(this);
+    this.handleOnSearchBook = this.handleOnSearchBook.bind(this);
+  }
+
   componentDidMount() {
-    BooksAPI.getAll().then(bookList => {
-      const books = bookList.map(({id, title, authors, shelf, imageLinks: {thumbnail}}) => ({id, title, authors, shelf, thumbnail}));
-      this.setState({books})
-    });
+    this.loadBooks();
+  }
+
+  loadBooks() {
+    BooksAPI.getAll().then(books => this.setState({books}));
+  }
+
+  handleOnBookShelfChange(book, shelf) {
+    const loadBooks = this.loadBooks;
+    BooksAPI.update(book, shelf).then(() => loadBooks());
+  }
+
+  handleOnSearchBook(query) {
+    if (query) {
+      BooksAPI.search(query, 20).then(res => !res.error ? this.setState({booksFound: res}) : console.log(res.error));
+    }
   }
 
   render() {
@@ -38,12 +57,12 @@ class BooksApp extends React.Component {
                   However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
                   you don't find a specific author or title. Every search is limited by search terms.
                 */}
-                <input type="text" placeholder="Search by title or author"/>
+                <input type="text" placeholder="Search by title or author" onChange={(event) => this.handleOnSearchBook(event.target.value)} />
                 
               </div>
             </div>
             <div className="search-books-results">
-              <ol className="books-grid"></ol>
+              { !this.state.booksFound ? null : <Shelf name="Books Found" books={this.state.booksFound} onBookShelfChange={this.handleOnBookShelfChange} /> }
             </div>
           </div>
         ) : (
@@ -53,9 +72,9 @@ class BooksApp extends React.Component {
             </div>
             <div className="list-books-content">
               <div>
-                <Shelf name="Currently Reading" books={this.state.books.filter(({shelf}) => shelf === 'currentlyReading')} />
-                <Shelf name="Want to Read" books={this.state.books.filter(({shelf}) => shelf === 'wantToRead')} />
-                <Shelf name="Read" books={this.state.books.filter(({shelf}) => shelf === 'read')} />
+                <Shelf name="Currently Reading" books={this.state.books.filter(({shelf}) => shelf === 'currentlyReading')} onBookShelfChange={this.handleOnBookShelfChange} />
+                <Shelf name="Want to Read" books={this.state.books.filter(({shelf}) => shelf === 'wantToRead')} onBookShelfChange={this.handleOnBookShelfChange} />
+                <Shelf name="Read" books={this.state.books.filter(({shelf}) => shelf === 'read')} onBookShelfChange={this.handleOnBookShelfChange} />
               </div>
             </div>
             <div className="open-search">
