@@ -14,28 +14,52 @@ class BooksApp extends React.Component {
 
   constructor() {
     super();
-    this.loadBooks = this.loadBooks.bind(this);
     this.handleOnBookShelfChange = this.handleOnBookShelfChange.bind(this);
     this.handleOnSearchBook = this.handleOnSearchBook.bind(this);
   }
 
   componentDidMount() {
-    this.loadBooks();
-  }
-
-  loadBooks() {
-    BooksAPI.getAll().then(books => this.setState({books}));
+    BooksAPI.getAll().then((books) => {
+      books = this.mapBooks(books);
+      this.setState({books});
+    });
   }
 
   handleOnBookShelfChange(book, shelf) {
-    const loadBooks = this.loadBooks;
-    BooksAPI.update(book, shelf).then(() => loadBooks());
+    BooksAPI.update(book, shelf).then(() => {
+      book.shelf = shelf;
+
+      this.setState({
+        books: this.state.books.filter(b => b.id !== book.id).concat([ book ]),
+        booksFound: this.state.booksFound.map(b => {
+          if (b.id === book.id) b.shelf = shelf;
+          return b;
+        }),
+      })
+    });
   }
 
   handleOnSearchBook(query) {
     if (query) {
-      BooksAPI.search(query, 20).then(res => !res.error ? this.setState({booksFound: res}) : console.log(res.error));
+      BooksAPI.search(query, 20).then(res => {
+        if (!res.error) {
+          let booksFound = this.mapBooks(res);
+
+          booksFound.map((book) => {
+            const shelvedBook = this.state.books.find(b => b.id === book.id) || {};
+            return book.shelf = shelvedBook.shelf;
+          })
+
+          this.setState({booksFound});
+        } else {
+          console.log(res.error);
+        }
+      });
     }
+  }
+
+  mapBooks(books) {
+    return books.map(({id, title, authors, imageLinks: {thumbnail}, shelf}) => ({id, title, authors, thumbnail, shelf}));
   }
 
   render() {

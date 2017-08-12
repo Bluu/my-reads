@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom'
+import PropTypes from 'prop-types';
 
 import Shelf from './Shelf';
 
@@ -20,5 +21,10 @@ const MyReads = ({books, handleOnBookShelfChange}) => (
         </div>
     </div> 
 );
+
+MyReads.propTypes = {
+    books: PropTypes.array.isRequired,
+    handleOnBookShelfChange: PropTypes.func.isRequired,
+};
 
 export default MyReads;
